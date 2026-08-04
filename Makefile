@@ -4,6 +4,12 @@ MPOST   ?= mpost
 LUATEX  ?= luatex
 TEXFLAGS = -interaction=nonstopmode
 
+# docmacro.tex does \input tex2page unconditionally, even for the PDF build,
+# so the tex2page macro package (not just the HTML-generation tool) must be
+# on the TeX search path. It isn't part of TeX Live, so a copy is vendored
+# here (see vendor/tex2page/COPYING for its license).
+export TEXINPUTS := .:vendor/tex2page:$(TEXINPUTS)
+
 .PHONY: all pdf clean distclean
 
 all: pdf

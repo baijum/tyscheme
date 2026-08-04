@@ -1,0 +1,51 @@
+% Dorai Sitaram
+% last change 2020-11-14
+
+\let\maybeendinput\relax
+
+\ifx\shipout\UnDeFiNeD
+  % no need to load for TeX2page,
+  % but allow Unicode chars directly
+  \let\TZPtextext=0
+  \let\maybeendinput\endinput
+\fi\maybeendinput
+
+\ifx\XeTeXversion\UnDeFiNeD
+  \ifx\directlua\UnDeFiNeD
+    % using neither XeTeX nor luaTeX
+    \message{Use XeTeX or luaTeX!}%
+    \let\maybeendinput\endinput
+  \else
+    % extra file needed for luaTeX
+    \input luaotfload.sty
+  \fi
+\fi\maybeendinput
+
+\let\oldtenrm\tenrm
+
+\font\tenrm "TeX Gyre Termes" at 10pt
+
+\ifx\tenrm\nullfont
+  \let\tenrm\oldtenrm
+  \message{Please install TeX Gyre fonts on your system!}%
+  \let\maybeendinput\endinput
+\fi\maybeendinput
+
+\font\sevenrm "TeX Gyre Termes" at 7pt
+\font\fiverm "TeX Gyre Termes" at 5pt
+
+\font\tenbf "TeX Gyre Termes/B" at 10pt
+\font\sevenbf "TeX Gyre Termes/B" at 7pt
+\font\fivebf "TeX Gyre Termes/B" at 5pt
+
+\font\tentt "TeX Gyre Cursor:-liga;embolden=1" at 10pt
+%\font\tentt "Latin Modern Mono" at 10pt
+
+\font\tensl "TeX Gyre Termes:slant=0.2" at 10pt
+
+\font\tenit "TeX Gyre Termes/I" at 10pt
+
+\def\visiblespace{·}
+\def\_{\char"5F }
+
+\rm

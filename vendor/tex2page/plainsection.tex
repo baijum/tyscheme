@@ -1,0 +1,222 @@
+% plainsection.tex
+% Dorai Sitaram
+% Last change 2016-12-21
+
+\let\maybeendinput\relax
+\ifx\shipout\UnDeFiNeD
+  \let\maybeendinput\endinput
+\fi\maybeendinput
+
+\edef\atcatcodebeforeplainsection{%
+  \noexpand\catcode`\noexpand\@=\the\catcode`\@}
+\catcode`\@11
+
+% Sections
+
+\def\tracksectionchangeatlevel#1{%
+  \expandafter\let\expandafter\thiscount
+    \csname sectionnumber#1\endcsname
+  \ifx\thiscount\relax
+    \expandafter\expandafter\csname newcount\endcsname
+      \csname sectionnumber#1\endcsname
+    \csname sectionnumber#1\endcsname=0
+  \fi
+  \expandafter\advance\csname sectionnumber#1\endcsname by 1
+  \ifx\doingappendix0%
+    \edef\@currentlabel{\the\csname sectionnumber1\endcsname}%
+  \else
+    \edef\@currentlabel{\appendixchar{\the\csname
+      sectionnumber1\endcsname}}%
+  \fi
+  \count255=0
+  \loop
+    \advance\count255 by 1
+    \ifnum\count255=1
+    \else\edef\@currentlabel{\@currentlabel.\the\csname
+      sectionnumber\the\count255\endcsname}%
+    \fi
+  \ifnum\count255<#1%
+  \repeat
+  \loop
+    \advance\count255 by 1
+    \expandafter\let\expandafter\nextcount\csname
+      sectionnumber\the\count255\endcsname
+    \ifx\nextcount\relax
+      \let\continue0%
+    \else
+      \csname sectionnumber\the\count255\endcsname=0
+      \let\continue1\fi
+  \ifx\continue1%
+  \repeat}
+
+\def\appendixchar#1{\ifcase#1\or A\or B\or C\or D\or E\or F\or
+G\or H\or I\or J\or K\or L\or M\or N\or O\or P\or Q\or R\or S\or
+T\or U\or V\or W\or X\or Y\or Z\else AA\fi}
+
+\newcount\secnumdepth
+
+\secnumdepth=3
+
+\def\sectiond#1{\count255=#1%
+  \ifx\usingchapters1\advance\count255 by 1 \fi
+  \edef\sectiondlvl{\the\count255 }%
+  \futurelet\sectionnextchar\sectiondispatch}
+
+\def\sectiondispatch{\ifx\sectionnextchar*%
+  \def\sectioncontinue{\sectionstar{\sectiondlvl}}\else
+  \ifnum\sectiondlvl>\secnumdepth
+  \def\sectioncontinue{\sectionhelp{\sectiondlvl}{}}\else
+  \tracksectionchangeatlevel{\sectiondlvl}%
+  \def\sectioncontinue{\sectionhelp{\sectiondlvl}%
+    {\@currentlabel}}\fi\fi
+  \sectioncontinue}
+
+\def\sectionstar#1*{\sectionhelp{#1}{}}
+
+\def\sectionhelp#1#2{%
+  \edef\sectiondepth{#1}%
+  \def\sectionnr{#2}%
+  \immediate\openout\sectionQscratchfileport Z-sec-temp
+  \begingroup
+  \def\do##1{\catcode`##1=11 }\dospecials
+  \catcode`\{=1 \catcode`\}= 2
+  \sectionheader}
+
+% Vanilla section-header look -- change this macro for new look
+
+\def\sectionheader#1{\endgroup
+  \immediate\write\sectionQscratchfileport {#1}%
+  \immediate\closeout\sectionQscratchfileport
+  \vskip -\lastskip
+  \ifnum\sectiondepth>\tocdepth\else
+  \writenumberedtocline{\sectiondepth}{\sectionnr}{#1}%
+  \fi
+  \vskip1.5\bigskipamount
+  \goodbreak %???
+  \noindent
+  \hbox{\vtop{\pretolerance 10000
+    \raggedright
+    \noindent\bf
+    \ifx\sectionnr\empty\else
+      \sectionnr\enspace\fi
+    \input Z-sec-temp }}%
+  \nobreak
+  \smallskip
+  %\noindent
+  }
+
+% \edef\temp{\write\tocout{\string\hskip#1\space em\string\relax\space #2%
+%    \string\vtop{\string\hsize=.7\string\hsize
+%    \string\noindent\string\raggedright\space #3}\string\par}}\temp
+
+\def\section{\sectiond1}
+\def\subsection{\sectiond2}
+\def\subsubsection{\sectiond3}
+\def\paragraph{\sectiond4}
+\def\subparagraph{\sectiond5}
+
+\let\usingchapters0
+
+\def\chapter{\global\let\usingchapters1%
+\global\footnotenumber=0
+\futurelet\chapternextchar\chapterdispatch}
+
+\def\chapterdispatch{\ifx\chapternextchar*%
+  \let\chaptercontinue\chapterstar\else
+  \tracksectionchangeatlevel{1}%
+  \def\chaptercontinue{\chapterhelp{\@currentlabel}}\fi
+  \chaptercontinue}
+
+\def\chapterstar*{\chapterhelp{}}
+
+\def\chapterhelp#1{%
+  % #1=number #2=heading-text
+  \def\chapternr{#1}%
+  \immediate\openout\sectionQscratchfileport Z-sec-temp
+  \begingroup
+  \def\do##1{\catcode`##1=11 }\dospecials
+  \catcode`\{=1 \catcode`\}=2
+  \chapterheader}
+
+\def\chapterheader#1{\endgroup
+  \immediate\write\sectionQscratchfileport {#1}%
+  \immediate\closeout\sectionQscratchfileport
+  \writenumberedtocline{1}{\chapternr}{#1}%
+  \vfill\eject
+  \null\vskip3em
+  \noindent
+  \ifx\chapternr\empty\hbox{~}\else
+  \ifx\doingappendix0%
+    \hbox{\bf Chapter \chapternr}\else
+  \hbox{\bf Appendix \chapternr}\fi\fi
+  \vskip 1em
+  \noindent
+  \hbox{\bf\vtop{%\hsize=.7\hsize
+    \pretolerance 10000
+    \noindent\raggedright\input Z-sec-temp }}%
+  \nobreak\vskip3em
+  %\noindent
+  }
+
+\let\doingappendix=0
+
+\def\appendix{\let\doingappendix=1
+  \csname sectionnumber1\endcsname=0
+  \relax}
+
+% enumerate
+
+\def\enumerate{\par\begingroup
+  \advance\@itemdepth by 1
+  \expandafter\csname newcount\endcsname\enumeratenumber
+  \enumeratenumber=0
+  \advance\leftskip\parindent
+  \smallbreak
+  \def\item{\smallbreak\noindent
+    \advance\enumeratenumber by 1
+    \ifnum\@itemdepth=1
+      \edef\enumeratemark{\the\enumeratenumber.}\else
+    \ifnum\@itemdepth=2
+      \count255=\the\enumeratenumber
+      \advance\count255 by -1 \advance\count255 by `a
+      \edef\enumeratemark{(\noexpand\char\the\count255 )}\else
+    \ifnum\@itemdepth=3
+      \edef\enumeratemark{\noexpand\romannumeral\the\enumeratenumber.}\else
+    \ifnum\@itemdepth=4
+      \count255=\the\enumeratenumber
+      \advance\count255 by -1 \advance\count255 by `A
+      \edef\enumeratemark{\noexpand\char\the\count255 .}\else
+    \edef\enumeratemark{\the\enumeratenumber.}\fi\fi\fi\fi
+    \edef\@currentlabel{\enumeratemark}% needed?
+    \llap{\enumeratemark\enspace}\ignorespaces}}
+
+\def\endenumerate{\smallbreak\smallbreak\endgroup\par}
+
+% itemize
+
+\newcount\@itemdepth
+
+\@itemdepth=0
+
+\def\labelitemi{$\bullet$}
+\def\labelitemii{$-$}
+\def\labelitemiii{$\star$}
+\def\labelitemiv{$\circ$}
+
+\def\itemize{\par\begingroup
+  \ifnum\@itemdepth>3
+    \message{Too deeply nested.}%
+  \fi
+  \advance\@itemdepth by 1
+  \advance\leftskip\parindent
+  \smallbreak
+  \def\item{\smallbreak\noindent
+  \llap{\csname labelitem\romannumeral
+    \the\@itemdepth\endcsname\enspace}%
+  \ignorespaces}}
+
+\def\enditemize{\smallbreak\smallbreak\endgroup\noindent}
+
+\atcatcodebeforeplainsection
+
+% end of file
