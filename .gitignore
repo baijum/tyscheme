@@ -1,0 +1,25 @@
+# Build output
+index.pdf
+
+# TeX auxiliary files
+*.aux
+*.log
+*.idx
+*.ind
+*.ilg
+*.toc
+*.bbl
+*.blg
+*.out
+*.mpx
+
+# Generated MetaPost figure (embedded in numint.tex, written out by \verbwritefile)
+numint.mp
+numint-*.eps
+
+# Scratch files written by tex2page/docmacro during a run
+Z-sec-temp.tex
+index.xrf
+
+# Code listings extracted from chapters via \verbwritefile
+*.scm
